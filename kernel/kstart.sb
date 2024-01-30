@@ -1,0 +1,18 @@
+
+void fun uart_putc(u8 c)
+{
+    u8 *uart0 = 268435456;
+    *(uart0) = c;
+}
+
+void fun kstart()
+{
+    uart_putc('k');
+    uart_putc('s');
+    uart_putc('t');
+    uart_putc('a');
+    uart_putc('r');
+    uart_putc('t');
+    uart_putc('!');
+    uart_putc(10);
+}
