@@ -1,0 +1,18 @@
+#include "kprintf.sbh"
+
+// TODO: synchronization & locking
+// TODO: proper UART buffering/wait on UART status
+void fun uart_putc(u8 c)
+{
+    u8 *mmio_uart = 0x10000000;
+    *mmio_uart = c;
+}
+
+void fun uart_puts(u8 *str)
+{
+    while(*str != 0)
+    {
+        uart_putc(*str);
+        str = str + 1;
+    }
+}

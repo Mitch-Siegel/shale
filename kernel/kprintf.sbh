@@ -1,0 +1,4 @@
+
+void fun uart_putc(u8 c);
+
+void fun uart_puts(u8 *str);

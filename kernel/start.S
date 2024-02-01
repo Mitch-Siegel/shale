@@ -24,12 +24,6 @@ kdone_loop:
     wfi
     j kdone_loop
 
-.section .data
-    .globl stack
-    .align 16
-stack:
-    .zero 65536
-
 .section .rodata
 kdone_str:
     .asciz "returned from kstart."
