@@ -1,0 +1,83 @@
+#include "uart.sbh"
+
+// TODO: synchronization & locking
+// TODO: proper UART buffering/wait on UART status
+
+// TODO: #define for buffer size
+u8[32] uartTxBuffer;
+u8 uartTxWriteLoc = 0;
+u8 uartTxReadLoc = 0;
+
+void fun uart_init()
+{
+    // TODO: define for uart register reads/writes
+    u8 *uartMmioBase = 0x10000000;
+
+    *(uartMmioBase + 1) = 0x00; // disable interrupts
+
+    *(uartMmioBase + 3) = (1 << 7); // mode to set baud rate
+
+    *(uartMmioBase) = 0x03; // LSB for 38.4Kbps
+
+    *(uartMmioBase + 1) = 0x00; // MSB for 38.4Kbps
+
+    *(uartMmioBase + 3) = 3; // reset, enable FIFOs
+
+    *(uartMmioBase + 1) = (1 << 1) | (1); // enable TX and RX interrupts
+}
+
+// if the UART is idle and there's something in the tx buffer, write it
+void fun uart_transmit()
+{
+    u8 *uartMmioBase = 0x10000000;
+
+    while(1 == 1)
+    {
+        if(uartTxWriteLoc == uartTxReadLoc)
+        {
+            return;
+        }
+
+        if((*(uartMmioBase + 5) & (1 << 5)) == 0)
+        {
+            return;
+        }
+
+        u8 toWrite = uartTxBuffer[uartTxReadLoc];
+        uartTxReadLoc += 1;
+
+        // TODO: use modulo when it is implemented
+        // uartTxReadLoc %= 32; // TODO: #define for buffer size
+        while(uartTxReadLoc > 32)
+        {
+            uartTxReadLoc -= 32;
+        }
+
+        // TODO: wake up anyone waiting on uartTxReadLoc to put more chars into the buffer
+
+        *(uartMmioBase + 0) = toWrite;
+        
+    }
+}
+
+void fun uart_putc(u32 c)
+{
+    u8 *uartMmioBase = 0x10000000;
+    // TODO: #define for buffer size
+    while(uartTxWriteLoc == uartTxReadLoc + 32)
+    {
+        // TODO: sleep on the value of uartTxReadLoc, wait for space to be opened up for us in the buffer
+        *uartMmioBase = '!';
+    }
+
+    uartTxBuffer[uartTxWriteLoc] = c;
+    uartTxWriteLoc += 1;
+    
+    // TODO: use modulo when it is implemented
+    // uartTxWriteLoc %= 32; // TODO: #define for buffer size
+    while(uartTxWriteLoc > 32)
+    {
+        uartTxWriteLoc -= 32;
+    }
+    uart_transmit();
+}

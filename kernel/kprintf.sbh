@@ -1,4 +1,4 @@
 
-void fun uart_putc(u8 c);
+void fun kputs(u8 *str);
 
-void fun uart_puts(u8 *str);
+void fun kputc(u8 c);

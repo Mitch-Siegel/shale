@@ -1,9 +1,11 @@
 #include "kprintf.sbh"
 
-u8[65536] stack;
+// TODO: compile by number of cpus and change stack size
+u8[4096] stack;
 
 void fun kstart()
 {
-    uart_puts("kstart!");
-    uart_putc(10);
+    console_init();
+    kputs("kstart!");
+    kputc(10);
 }

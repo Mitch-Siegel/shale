@@ -1,0 +1,27 @@
+#include "console.sbh"
+#include "uart.sbh"
+
+// TODO: synchronization for console
+
+void fun console_init()
+{
+    uart_init();
+}
+
+void fun console_putc(u32 c)
+{
+    // TODO: use define for value of backspace
+    if(c == 0x100)
+    {
+        // if a backspace was typed, overwrite the previous character
+        // TODO: use escaped backspace here
+        uart_putc(8);
+        uart_putc(' ');
+        uart_putc(8);
+    }
+    else
+    {
+        // non-backspace, print it directly
+        uart_putc(c);
+    }
+}

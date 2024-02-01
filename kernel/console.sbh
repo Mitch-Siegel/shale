@@ -1,0 +1,4 @@
+
+void fun console_init();
+
+void fun console_putc(u32 c);
