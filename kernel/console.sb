@@ -14,10 +14,9 @@ void fun console_putc(u32 c)
     if(c == 0x100)
     {
         // if a backspace was typed, overwrite the previous character
-        // TODO: use escaped backspace here
-        uart_putc(8);
+        uart_putc('\b');
         uart_putc(' ');
-        uart_putc(8);
+        uart_putc('\b');
     }
     else
     {
