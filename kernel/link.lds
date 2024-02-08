@@ -50,6 +50,6 @@ SECTIONS
     PROVIDE(_bss_end = .);
   } AT>ram :bss
 
-  PROVIDE(_memory_start = ORIGIN(ram));
+  PROVIDE(_kernel_end = ORIGIN(ram));
   PROVIDE(_memory_end = ORIGIN(ram) + LENGTH(ram));
 }

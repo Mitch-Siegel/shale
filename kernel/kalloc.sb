@@ -1,0 +1,31 @@
+#include "kalloc.sbh"
+
+extern u8 *_kernel_end; // first address after the kernel, defined in the linker script link.lds
+
+u8 *fun PGROUNDUP(u8 *physAddr)
+{
+    return physAddr & 0xFFFFF000;
+}
+
+void fun kfree(void *physAddr)
+{
+    
+}
+
+// free the physical memory starting at address physStart and ending at physEnd (page align)
+void fun free_range(u8 *physStart, u8 *physEnd)
+{
+    u8 *pageToFree = PGROUNDDOWN(physStart);
+    physEnd = PGROUNDUP(physEnd);
+    while(pageToFree <= physEnd)
+    {
+        kfree(pageToFree);
+        pageToFree += 4096; // TODO: page size macro
+    }
+
+}
+
+void fun kmeminit()
+{
+    freerange(_kernel_end);
+}
