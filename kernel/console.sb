@@ -3,12 +3,12 @@
 
 // TODO: synchronization for console
 
-void fun console_init()
+fun console_init()
 {
     uart_init();
 }
 
-void fun console_putc(u32 c)
+fun console_putc(u32 c)
 {
     // TODO: use define for value of backspace
     if(c == 0x100)

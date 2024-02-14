@@ -7,22 +7,17 @@ MEMORY
   ram   (wxa!ri) : ORIGIN = 0x80000000, LENGTH = 128M
 }
 
-PHDRS
-{
-  text PT_LOAD;
-  data PT_LOAD;
-  bss PT_LOAD;
-}
-
 SECTIONS
 {
+  . = 0x80000000;
+
   .text : {
     . = ALIGN(16);
     PROVIDE(_text_start = .);
     *(.text.init) *(.text .text.*)
     . = ALIGN(16);
     PROVIDE(_text_end = .);
-  } AT>ram :text
+  }
 
   .rodata : {
     . = ALIGN(16);    
@@ -30,7 +25,7 @@ SECTIONS
     *(.rodata .rodata.*)
     . = ALIGN(16);
     PROVIDE(_rodata_end = .);
-  } AT>ram :text
+  }
 
   .data : {
     . = ALIGN(16);
@@ -40,7 +35,7 @@ SECTIONS
     *(.data .data.*)
     . = ALIGN(16);
     PROVIDE(_data_end = .);
-  } AT>ram :data
+  }
 
   .bss :{
     . = ALIGN(16);
@@ -48,8 +43,8 @@ SECTIONS
     *(.sbss .sbss.*) *(.bss .bss.*)
     . = ALIGN(16);
     PROVIDE(_bss_end = .);
-  } AT>ram :bss
+  }
 
-  PROVIDE(_kernel_end = ORIGIN(ram));
+  PROVIDE(_kernel_end = .);
   PROVIDE(_memory_end = ORIGIN(ram) + LENGTH(ram));
 }

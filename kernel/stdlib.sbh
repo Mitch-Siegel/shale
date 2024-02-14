@@ -1,0 +1,2 @@
+
+fun memset(any *start, u8 value, u32 size);

@@ -1,5 +1,5 @@
 
-void fun uart_init();
+fun uart_init();
 
-void fun uart_putc(u32 c);
+fun uart_putc(u32 c);
 

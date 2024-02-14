@@ -1,4 +1,4 @@
 
-void fun console_init();
+fun console_init();
 
-void fun console_putc(u32 c);
+fun console_putc(u32 c);

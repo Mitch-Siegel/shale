@@ -1,11 +1,13 @@
 #include "kprintf.sbh"
 #include "console.sbh"
+#include "kalloc.sbh"
 
 // TODO: compile by number of cpus and change stack size
 u8[4096] stack;
 
-void fun kstart()
+fun kstart()
 {
     console_init();
     kputs("kstart!\n");
+    kmeminit();
 }

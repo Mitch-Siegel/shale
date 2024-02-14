@@ -8,7 +8,7 @@ u8[32] uartTxBuffer;
 u8 uartTxWriteLoc = 0;
 u8 uartTxReadLoc = 0;
 
-void fun uart_init()
+fun uart_init()
 {
     // TODO: define for uart register reads/writes
     u8 *uartMmioBase = 0x10000000;
@@ -27,7 +27,7 @@ void fun uart_init()
 }
 
 // if the UART is idle and there's something in the tx buffer, write it
-void fun uart_transmit()
+fun uart_transmit()
 {
     u8 *uartMmioBase = 0x10000000;
 
@@ -60,7 +60,7 @@ void fun uart_transmit()
     }
 }
 
-void fun uart_putc(u32 c)
+fun uart_putc(u32 c)
 {
     u8 *uartMmioBase = 0x10000000;
     // TODO: #define for buffer size
