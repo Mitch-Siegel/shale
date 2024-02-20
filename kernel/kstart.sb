@@ -10,4 +10,5 @@ fun kstart()
     console_init();
     kputs("kstart!\n");
     kmeminit();
+    kputs("bottom of kstart!\n");
 }

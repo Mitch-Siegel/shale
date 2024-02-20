@@ -2,8 +2,8 @@
 #include "kprintf.sbh"
 #include "stdlib.sbh"
 
-extern u8 *_kernel_end; // first address after the kernel, defined in the linker script link.lds
-extern u8 *_memory_end; // top of physical memory
+extern u8 [1]_kernel_end; // first address after the kernel, defined in the linker script link.lds
+extern u8 [1]_memory_end; // top of physical memory
 
 u8 *fun PGROUNDDOWN(u8 *physAddr)
 {
@@ -26,25 +26,22 @@ Kmem kmem;
 fun kfree(any *pageToFree)
 {
     // TODO: fix this when name for string literals at inner scopes is fixed
-    u8 *e1 = "unaligned pa in kfree";
-    u8 *e2 = "pa < _kernel_end in kfree";
-    u8 *e3 = "pa >= physical memory limit in kfree";
 
     // TODO: page size macro
     // TODO: u64 type?
     if(((u32)pageToFree % 4096) != 0)
     {
-        kpanic(e1);
+        kpanic("unaligned pa in kfree");
     }
 
     if(pageToFree < _kernel_end)
     {
-        kpanic(e2);
+        kpanic("pa < _kernel_end in kfree");
     }
 
-    if(pageToFree >= 0x8FFFFFF)
+    if(pageToFree >= 0x8FFFFFFF)
     {
-        kpanic(e3);
+        kpanic("pa >= physical memory limit in kfree");
     }
 
     // TODO: allow implicit conversion from pointer to any *
@@ -54,38 +51,25 @@ fun kfree(any *pageToFree)
     Kpage *p = pageToFree;
     p->next = kmem.freeList;
 
-    kputs("free page");
-
 }
 
 // free the physical memory starting at address physStart and ending at physEnd (page align)
 fun free_range(any *physStart, any *physEnd)
 {
-    u8 *pageToFree = PGROUNDDOWN(physStart);
-    while(pageToFree <= physEnd)
+    // TODO: macro for page size
+    u8 *pageToFree = PGROUNDDOWN((u8 *)physStart + 4096);
+    while(pageToFree < physEnd)
     {
         kfree(pageToFree);
         pageToFree += 4096; // TODO: page size macro
     }
-
-    
-
 }
 
 fun kmeminit()
 {
-    kputs("_kernel_end:");
-    u32 realKend = _kernel_end;
-    kputhex(realKend);
-    kputc('\n');
-
-    kputs("_memory_end:");
-    u32 realMemEnd = _memory_end;
-    kputhex(realMemEnd);
-    kputc('\n');
+    kputs("marking all physical memory as free...");
     
-    
-    // TODO: allow implicit conversion from pointer to any *
     memset((any *)&kmem, 0, 4); // TODO: sizeof / global variable initialization?
-    free_range(_kernel_end, (u8 *)0x8FFFFFF); // TODO: macro for top of physical memory (or detect dynamically?)
+    free_range(_kernel_end, _memory_end); // TODO: macro for top of physical memory (or detect dynamically?)
+    kputs("done.\n");
 }

@@ -46,12 +46,7 @@ fun uart_transmit()
         u8 toWrite = uartTxBuffer[uartTxReadLoc];
         uartTxReadLoc += 1;
 
-        // TODO: use modulo when it is implemented
-        // uartTxReadLoc %= 32; // TODO: #define for buffer size
-        while(uartTxReadLoc > 32)
-        {
-            uartTxReadLoc -= 32;
-        }
+        uartTxReadLoc %= 32; // TODO: #define for buffer size
 
         // TODO: wake up anyone waiting on uartTxReadLoc to put more chars into the buffer
 
@@ -73,11 +68,6 @@ fun uart_putc(u32 c)
     uartTxBuffer[uartTxWriteLoc] = c;
     uartTxWriteLoc += 1;
     
-    // TODO: use modulo when it is implemented
-    // uartTxWriteLoc %= 32; // TODO: #define for buffer size
-    while(uartTxWriteLoc > 32)
-    {
-        uartTxWriteLoc -= 32;
-    }
+    uartTxWriteLoc %= 32; // TODO: #define for buffer size
     uart_transmit();
 }
