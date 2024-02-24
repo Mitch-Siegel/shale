@@ -23,34 +23,51 @@ class Kmem
 Kmem kmem;
 
 
-fun kfree(any *pageToFree)
+fun kfree(any *physPageAddr)
 {
     // TODO: fix this when name for string literals at inner scopes is fixed
 
     // TODO: page size macro
     // TODO: u64 type?
-    if(((u32)pageToFree % 4096) != 0)
+    if(((u32)physPageAddr % 4096) != 0)
     {
         kpanic("unaligned pa in kfree");
     }
 
-    if(pageToFree < _kernel_end)
+    if(physPageAddr < _kernel_end)
     {
         kpanic("pa < _kernel_end in kfree");
     }
 
-    if(pageToFree >= 0x8FFFFFFF)
+    if(physPageAddr >= 0x8FFFFFFF)
     {
         kpanic("pa >= physical memory limit in kfree");
     }
 
     // TODO: allow implicit conversion from pointer to any *
-    memset((any *)pageToFree, 1, 4096); // TODO: page size macro
+    memset((any *)physPageAddr, 1, 4096); // TODO: page size macro
 
     // TODO: locking
-    Kpage *p = pageToFree;
+    Kpage *p = physPageAddr;
     p->next = kmem.freeList;
+}
 
+any *fun kalloc()
+{
+    Kpage *p = kmem.freeList;
+    if(p != 0) // TODO: NULL
+    {
+        kmem.freeList = p->next;
+    }
+    else
+    {
+        kpanic("no more physical memory available");
+    }
+
+    // fill the page with garbage
+    memset(p, 0xcd, 4096); // TODO: macro for page size
+
+    return p;
 }
 
 // free the physical memory starting at address physStart and ending at physEnd (page align)
