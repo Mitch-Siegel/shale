@@ -1,0 +1,9 @@
+
+// Per-CPU state.
+class Cpu {
+    Process *proc;  // The process running on this cpu, or null.
+    u32 offDepth;   // Depth of push_off() nesting.
+    u8 intena;      // Were interrupts enabled before push_off()?
+};
+
+Cpu *fun myCpu();

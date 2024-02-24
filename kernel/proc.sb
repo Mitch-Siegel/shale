@@ -1,0 +1,21 @@
+#include "proc.sbh"
+
+// TODO: define for ncpus
+Cpu[4] cpus;
+
+
+
+u8 fun cpuid()
+{
+    return r_tp();
+}
+
+// Return this CPU's cpu struct.
+// Interrupts must be disabled.
+Cpu *fun myCpu()
+{
+    // TODO: u64
+    u32 id = cpuid();
+    Cpu *c = &cpus[id];
+    return c;
+}
