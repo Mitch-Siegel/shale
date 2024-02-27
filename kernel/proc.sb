@@ -8,7 +8,7 @@ Cpu[4] cpus;
 
 u8 fun cpuid()
 {
-    return r_tp();
+    return RISCV_ReadThreadPointer();
 }
 
 // Return this CPU's cpu struct.

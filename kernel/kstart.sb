@@ -2,6 +2,7 @@
 #include "console.sbh"
 #include "kalloc.sbh"
 
+#include "spinlock.sbh"
 // TODO: compile by number of cpus and change stack size
 u8[4096] stack;
 
@@ -10,5 +11,11 @@ fun kstart()
     console_init();
     kputs("kstart!\n");
     kmeminit();
+
+    Spinlock l;
+    Spinlock_Init(&l, "TESTLOCK");
+    kputs("survived spinlock init\n");
+    Spinlock_Acquire(&l);
+
     kputs("bottom of kstart!\n");
 }

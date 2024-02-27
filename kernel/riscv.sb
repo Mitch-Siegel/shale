@@ -1,8 +1,28 @@
 #include "riscv.sbh"
 
-u32 fun r_tp() asm
+u32 fun RISCV_ReadThreadPointer() asm
 {
     // a0 is the the return register for substratum's ABI
     mv a0, tp
-    
 }
+
+// TODO: ABI?
+u32 fun RISCV_TestAndSet(u32 *address, u32 newValue) asm
+{
+    # callee-save register a1
+    addi sp, sp, -4
+    sw a1, 0(sp)
+
+    lwu a0, 8(fp) # place address
+    lwu a1, 12(fp) # place newValue
+    amoswap.w.aq a0, a1, (a0)
+
+    # restore callee-saved register a1
+    lwu a0, 0(sp)
+    addi sp, sp, -4
+}
+
+fun RISCV_Synchronize() asm
+{
+    sfence.vma
+};
