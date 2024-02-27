@@ -1,0 +1,8 @@
+#include "riscv.sbh"
+
+u32 fun r_tp() asm
+{
+    // a0 is the the return register for substratum's ABI
+    mv a0, tp
+    
+}

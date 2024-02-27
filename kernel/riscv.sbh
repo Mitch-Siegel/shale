@@ -1,7 +1,7 @@
 
 // TODO: u64 return 
-u32 fun r_tp() asm
-{
-    // a0 is the the return register for substratum's ABI
-    mv a0, tp
-}
+u32 fun RISCV_ReadThreadPointer();
+
+u32 fun RISCV_TestAndSet(u32 *address, u32 newValue);
+
+fun RISCV_Synchronize();

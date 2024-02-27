@@ -1,0 +1,45 @@
+#include "spinlock.sbh"
+
+#include "riscv.sbh"
+#include "interrupts.sbh"
+#include "proc.sbh"
+#include "kprintf.sbh"
+
+fun Spinlock_Init(Spinlock *l, u8 *name)
+{
+    l->locked = 0;
+    l->cpu = 0;
+    l->name = name;
+}
+
+u8 fun Spinlock_Holding(Spinlock *l)
+{
+    if(l->locked == 0)
+    {
+        return 0;
+    }
+
+    if(l->cpu != myCpu())
+    {
+        return 0;
+    }
+    return 1;
+}
+
+fun Spinlock_Acquire(Spinlock *l)
+{
+    push_off();
+    // TODO: just compare against the return value
+    if(Spinlock_Holding(l) != 0)
+    {
+        kpanic("attempt to acquire held spinlock");
+    }
+
+    while(RISCV_TestAndSet(&l->locked, 1) != 0)
+    {
+    }
+
+    RISCV_Synchronize();
+
+    l->cpu = myCpu();
+}

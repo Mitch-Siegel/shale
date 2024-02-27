@@ -1,8 +1,9 @@
 #include "proc.sbh"
 
+#include "riscv.sbh"
+
 // TODO: define for ncpus
 Cpu[4] cpus;
-
 
 
 u8 fun cpuid()

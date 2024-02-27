@@ -1,0 +1,13 @@
+
+class Spinlock
+{
+    u32 locked;
+    u8 *name;
+    u8 cpu;
+};
+
+fun Spinlock_Init(Spinlock *l, u8 *name);
+
+fun Spinlock_Acquire(Spinlock *l);
+
+
