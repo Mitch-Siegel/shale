@@ -26,3 +26,20 @@ fun RISCV_Synchronize() asm
 {
     sfence.vma
 };
+
+fun RISCV_WriteSatp(u32 newSatp)
+{
+}
+
+fun RISCV_writeMedeleg(u32 newMedeleg)
+{
+}
+
+fun RISCV_writeMideleg(u32 newMideleg)
+{
+}
+
+fun RISCV_mret() asm
+{
+    mret
+}

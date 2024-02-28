@@ -5,3 +5,14 @@ u32 fun RISCV_ReadThreadPointer();
 u32 fun RISCV_TestAndSet(u32 *address, u32 newValue);
 
 fun RISCV_Synchronize();
+
+// TODO: u64?
+fun RISCV_WriteSatp(u32 newSatp);
+
+// TODO: u64?
+fun RISCV_writeMedeleg(u32 newMedeleg);
+
+// TODO: u64?
+fun RISCV_writeMideleg(u32 newMideleg);
+
+fun RISCV_mret();

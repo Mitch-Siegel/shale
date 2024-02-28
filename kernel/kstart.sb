@@ -1,21 +1,60 @@
 #include "kprintf.sbh"
 #include "console.sbh"
 #include "kalloc.sbh"
+#include "riscv.sbh"
 
 #include "spinlock.sbh"
 // TODO: compile by number of cpus and change stack size
 u8[4096] stack;
 
+fun SetSupervisorMode() asm
+{
+    # set previous privelege mode to supervisor
+    # so that when we mret at the end of start, we are in supervisor mode
+    csrr a0, mstatus
+    # ~MSTATUS_MPP_MASK
+    lui a1, 0xffffe
+    add a1, a1, 2047
+    and	a0, a0, a1
+    # MSTATUS_MPP_S
+    lui a1, 0x1
+    add a1, a1, -2048
+    or a0, a0, a1
+    csrw mstatus, a0
+
+    # give supervisor mode access to all of physical memory
+    # TODO: implement these as RISCV_ asm functions with u64
+    li a0, 0x3fffffffffffff
+    csrw pmpaddr0, a0
+    li a0, 0xf
+    csrw pmpcfg0, a0
+}
+
+fun SetMepcForKmain() asm
+{
+    la a0, kmain
+    csrw mepc, a0
+}
+
 fun kstart()
+{
+    SetSupervisorMode();
+    SetMepcForKmain();
+
+    // disable paging
+    RISCV_WriteSatp(0);
+
+    RISCV_writeMedeleg(0xffff);
+    RISCV_writeMideleg(0xffff);
+
+    RISCV_mret();
+}
+
+fun kmain()
 {
     console_init();
     kputs("kstart!\n");
     kmeminit();
-
-    Spinlock l;
-    Spinlock_Init(&l, "TESTLOCK");
-    kputs("survived spinlock init\n");
-    Spinlock_Acquire(&l);
 
     kputs("bottom of kstart!\n");
 }
