@@ -1,20 +1,20 @@
 #include "riscv.sbh"
 
-u32 fun RISCV_ReadThreadPointer() asm
+u32 fun RISCV_readThreadPointer() asm
 {
     // a0 is the the return register for substratum's ABI
     mv a0, tp
 }
 
 // TODO: ABI?
-u32 fun RISCV_TestAndSet(u32 *address, u32 newValue) asm
+u32 fun RISCV_testAndSet(u32 *address, u32 newValue) asm
 {
     # callee-save register a1
     addi sp, sp, -4
     sw a1, 0(sp)
 
-    lwu a0, 8(fp) # place address
-    lwu a1, 12(fp) # place newValue
+    lwu a0, 16(fp) # place address
+    lwu a1, 24(fp) # place newValue
     amoswap.w.aq a0, a1, (a0)
 
     # restore callee-saved register a1
@@ -22,21 +22,38 @@ u32 fun RISCV_TestAndSet(u32 *address, u32 newValue) asm
     addi sp, sp, -4
 }
 
-fun RISCV_Synchronize() asm
+fun RISCV_synchronize() asm
 {
     sfence.vma
 };
 
-fun RISCV_WriteSatp(u32 newSatp)
+fun RISCV_writeSatp(u64 newSatp) asm
 {
+    lwu a0, 16(fp)
+    csrw satp, a0
 }
 
-fun RISCV_writeMedeleg(u32 newMedeleg)
+u64 fun RISCV_readSie() asm
 {
+    csrr a0, sie
 }
 
-fun RISCV_writeMideleg(u32 newMideleg)
+fun RISCV_writeSie(u64 newSie) asm
 {
+    lwu a0, 16(fp)
+    csrw sie, a0
+}
+
+fun RISCV_writeMedeleg(u64 newMedeleg) asm
+{
+    lwu a0, 16(fp)
+    csrw medeleg, a0
+}
+
+fun RISCV_writeMideleg(u64 newMideleg) asm
+{
+    lwu a0, 16(fp)
+    csrw mideleg, a0
 }
 
 fun RISCV_mret() asm

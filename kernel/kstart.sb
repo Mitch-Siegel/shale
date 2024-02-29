@@ -36,16 +36,27 @@ fun SetMepcForKmain() asm
     csrw mepc, a0
 }
 
+fun WriteHartIdToTp() asm
+{
+    csrr a0, mhartid
+    mv tp, a0
+}
+
 fun kstart()
 {
     SetSupervisorMode();
     SetMepcForKmain();
 
     // disable paging
-    RISCV_WriteSatp(0);
+    RISCV_writeSatp(0);
 
+    // delegate all interrupts/exceptions to supervisor mode
     RISCV_writeMedeleg(0xffff);
     RISCV_writeMideleg(0xffff);
+    // TODO: defines for SIE_SEIE, SIE_STIE, SIE_SSIE
+    RISCV_writeSie(RISCV_readSie() | (1 << 9) | (1 << 5) | 1);
+
+    WriteHartIdToTp();
 
     RISCV_mret();
 }

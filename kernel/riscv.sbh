@@ -1,18 +1,19 @@
 
 // TODO: u64 return 
-u32 fun RISCV_ReadThreadPointer();
+u32 fun RISCV_readThreadPointer();
 
-u32 fun RISCV_TestAndSet(u32 *address, u32 newValue);
+u32 fun RISCV_testAndSet(u32 *address, u32 newValue);
 
-fun RISCV_Synchronize();
+fun RISCV_synchronize();
 
-// TODO: u64?
-fun RISCV_WriteSatp(u32 newSatp);
+fun RISCV_writeSatp(u64 newSatp);
 
-// TODO: u64?
-fun RISCV_writeMedeleg(u32 newMedeleg);
+u64 fun RISCV_readSie();
 
-// TODO: u64?
-fun RISCV_writeMideleg(u32 newMideleg);
+fun RISCV_writeSie(u64 newSie);
+
+fun RISCV_writeMedeleg(u64 newMedeleg);
+
+fun RISCV_writeMideleg(u64 newMideleg);
 
 fun RISCV_mret();

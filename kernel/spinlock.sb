@@ -35,11 +35,11 @@ fun Spinlock_Acquire(Spinlock *l)
         kpanic("attempt to acquire held spinlock");
     }
 
-    while(RISCV_TestAndSet(&l->locked, 1) != 0)
+    while(RISCV_testAndSet(&l->locked, 1) != 0)
     {
     }
 
-    RISCV_Synchronize();
+    RISCV_synchronize();
 
     l->cpu = myCpu();
 }
