@@ -60,3 +60,38 @@ fun RISCV_mret() asm
 {
     mret
 }
+
+u64 RISCV_readSstatus() asm
+{
+    csrr a0, sstatus
+}
+
+u64 RISCV_writeSstatus(u64 newSstatus) asm
+{
+    lwu a0, 16(fp)
+    csrw sstatus, a0
+}
+
+
+u8 fun RISCV_intrEnabled()
+{
+    if((RISCV_readSstatus() & 1) != 0)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+fun RISCV_intrOff()
+{
+    RISCV_writeSstatus(RISCV_readSstatus() | 1);
+}
+
+fun RISCV_intrOn()
+{
+    RISCV_writeSstatus(RISCV_readSstatus() | 0xFFFFFFFFFFFFFFFE);
+}
+

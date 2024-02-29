@@ -17,3 +17,9 @@ fun RISCV_writeMedeleg(u64 newMedeleg);
 fun RISCV_writeMideleg(u64 newMideleg);
 
 fun RISCV_mret();
+
+u8 fun RISCV_intrEnabled();
+
+fun RISCV_intrOff();
+
+fun RISCV_intrOn();

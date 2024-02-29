@@ -1,11 +1,39 @@
 #include "interrupts.sbh"
 
+#include "riscv.sbh"
+#include "proc.sbh"
+
 fun push_off()
 {
-    // TODO: implement
+    u8 old = RISCV_intrEnabled();
+
+    RISCV_intrOff();
+    if((myCpu())->offDepth == 0)
+    {
+        (myCpu())->intena = old;
+    }
+    (myCpu())->offDepth += 1;
 }
 
 fun pop_off()
 {
-    // TODO: implement
+    if(RISCV_intrEnabled() != 0)
+    {
+        kpanic("pop_off called while interruptible");
+    }
+
+    Cpu *c = myCpu();
+    if(c->offDepth < 1)
+    {
+        kpanic("pop_off called with offDepth < 1");
+    }
+    c->offDepth -= 1;
+    // TODO: logical and of both conditions
+    if(c->offDepth == 0)
+    {
+        if(c->intena)
+        {
+            RISCV_intrOn();
+        }
+    }
 }
