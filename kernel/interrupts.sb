@@ -2,17 +2,18 @@
 
 #include "riscv.sbh"
 #include "proc.sbh"
+#include "kprintf.sbh"
 
 fun push_off()
 {
     u8 old = RISCV_intrEnabled();
 
     RISCV_intrOff();
-    if((myCpu())->offDepth == 0)
+    if(myCpu()->offDepth == 0)
     {
-        (myCpu())->intena = old;
+        myCpu()->intena = old;
     }
-    (myCpu())->offDepth += 1;
+    myCpu()->offDepth += 1;
 }
 
 fun pop_off()
@@ -31,7 +32,7 @@ fun pop_off()
     // TODO: logical and of both conditions
     if(c->offDepth == 0)
     {
-        if(c->intena)
+        if(c->intena != 0)
         {
             RISCV_intrOn();
         }

@@ -61,12 +61,12 @@ fun RISCV_mret() asm
     mret
 }
 
-u64 RISCV_readSstatus() asm
+u64 fun RISCV_readSstatus() asm
 {
     csrr a0, sstatus
 }
 
-u64 RISCV_writeSstatus(u64 newSstatus) asm
+u64 fun RISCV_writeSstatus(u64 newSstatus) asm
 {
     lwu a0, 16(fp)
     csrw sstatus, a0
