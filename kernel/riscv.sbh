@@ -4,6 +4,8 @@ u32 fun RISCV_readThreadPointer();
 
 u32 fun RISCV_testAndSet(u32 *address, u32 newValue);
 
+fun RISCV_lockRelease(u32 *address);
+
 fun RISCV_synchronize();
 
 fun RISCV_writeSatp(u64 newSatp);

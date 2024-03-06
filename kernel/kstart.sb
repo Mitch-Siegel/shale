@@ -67,5 +67,12 @@ fun kmain()
     kputs("kstart!\n");
     kmeminit();
 
+    Spinlock testLock;
+
+    Spinlock_Init(&testLock, "testlock");
+
+    Spinlock_Acquire(&testLock);
+    Spinlock_Release(&testLock);
+
     kputs("bottom of kstart!\n");
 }
