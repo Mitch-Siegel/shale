@@ -61,6 +61,13 @@ fun kstart()
     RISCV_mret();
 }
 
+fun kexit() asm
+{
+    li a0, 0x100000
+    li a1, 0x5555
+    sw a1,0(a0)
+}
+
 fun kmain()
 {
     console_init();
@@ -75,4 +82,5 @@ fun kmain()
     Spinlock_Release(&testLock);
 
     kputs("bottom of kstart!\n");
+    kexit();
 }
