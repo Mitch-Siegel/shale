@@ -50,6 +50,7 @@ fun kfree(any *physPageAddr)
     // TODO: locking
     Kpage *p = physPageAddr;
     p->next = kmem.freeList;
+    kmem.freeList = p;
 }
 
 any *fun kalloc()
@@ -75,8 +76,15 @@ fun free_range(any *physStart, any *physEnd)
 {
     // TODO: macro for page size
     u8 *pageToFree = PGROUNDDOWN((u8 *)physStart + 4096);
+    u32 start = (u32)pageToFree;
     while(pageToFree < physEnd)
     {
+        // print progress every MiB 
+        if(pageToFree % 0x100000 == 0)
+        {
+            kputc('\r');
+            kputhex(((u32)pageToFree));
+        }
         kfree(pageToFree);
         pageToFree += 4096; // TODO: page size macro
     }
@@ -84,9 +92,9 @@ fun free_range(any *physStart, any *physEnd)
 
 fun kmeminit()
 {
-    kputs("marking all physical memory as free...");
+    kputs("marking all physical memory as free...\n");
     
     memset((any *)&kmem, 0, 4); // TODO: sizeof / global variable initialization?
     free_range(_kernel_end, _memory_end); // TODO: macro for top of physical memory (or detect dynamically?)
-    kputs("done.\n");
+    kputs(" done - physical memory initialized\n");
 }
