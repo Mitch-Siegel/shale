@@ -1,0 +1,39 @@
+#include "trap.sbh"
+
+#include "kprintf.sbh"
+#include "riscv.sbh"
+
+fun SetStvecToKernelvec() asm
+{
+    # TODO: extern function kernelvec
+    # la a0, kernelvec
+    # csrw stvec, a0
+}
+
+fun kerneltrap()
+{
+    u64 sepc = RISCV_readSepc();
+    u64 sstatus = RISCV_readSstatus();
+    u64 scause = RISCV_readScause();
+
+    // TODO: #define for SSTATUS_SPP
+    if((sstatus & (1 << 8)) == 0)
+    {
+        kpanic("entered kerneltrap not from supervisor mode");
+    }
+
+    if(RISCV_intrEnabled() != 0)
+    {
+        kpanic("entered kerneltrap with interrupts enabled");
+    }
+
+    kputs("\tscause:");
+    kputhex((u32)scause);
+    kpanic("kerneltrap!");
+
+}
+
+fun trapinit()
+{
+    SetStvecToKernelvec();
+}
