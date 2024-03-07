@@ -79,6 +79,16 @@ u64 fun RISCV_writeSstatus(u64 newSstatus) asm
     csrw sstatus, a0
 }
 
+u64 fun RISCV_readSepc() asm
+{
+    csrr a0, sepc
+}
+
+u64 fun RISCV_readScause() asm
+{
+    csrr a0, scause
+}
+
 
 u8 fun RISCV_intrEnabled()
 {

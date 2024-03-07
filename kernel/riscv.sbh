@@ -14,6 +14,14 @@ u64 fun RISCV_readSie();
 
 fun RISCV_writeSie(u64 newSie);
 
+u64 fun RISCV_readSstatus();
+
+u64 fun RISCV_writeSstatus(u64 newSstatus);
+
+u64 fun RISCV_readSepc();
+
+u64 fun RISCV_readScause();
+
 fun RISCV_writeMedeleg(u64 newMedeleg);
 
 fun RISCV_writeMideleg(u64 newMideleg);
