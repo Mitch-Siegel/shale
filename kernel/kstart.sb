@@ -1,6 +1,7 @@
 #include "kprintf.sbh"
 #include "console.sbh"
 #include "kalloc.sbh"
+#include "trap.sbh"
 #include "riscv.sbh"
 
 #include "spinlock.sbh"
@@ -73,6 +74,7 @@ fun kmain()
     console_init();
     kputs("kstart!\n");
     kmeminit();
+    trapinit();
 
     Spinlock testLock;
 
