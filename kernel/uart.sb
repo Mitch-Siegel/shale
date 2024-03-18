@@ -1,15 +1,26 @@
 #include "uart.sbh"
+#include "spinlock.sbh"
+
+class Uart
+{
+    Spinlock lock;
+
+    // TODO: #define for buffer size
+    u8[32] txBuffer;
+    u8 txWriteLoc;
+    u8 txReadLoc;
+};
+
+Uart uart;
 
 // TODO: synchronization & locking
 // TODO: proper UART buffering/wait on UART status
 
-// TODO: #define for buffer size
-u8[32] uartTxBuffer;
-u8 uartTxWriteLoc = 0;
-u8 uartTxReadLoc = 0;
 
 fun uart_init()
 {
+    Spinlock_Init(&(uart.lock), "Uart Lock");
+
     // TODO: define for uart register reads/writes
     u8 *uartMmioBase = 0x10000000;
 
@@ -33,7 +44,7 @@ fun uart_transmit()
 
     while(1 == 1)
     {
-        if(uartTxWriteLoc == uartTxReadLoc)
+        if(uart.txWriteLoc == uart.txReadLoc)
         {
             return;
         }
@@ -43,12 +54,13 @@ fun uart_transmit()
             return;
         }
 
-        u8 toWrite = uartTxBuffer[uartTxReadLoc];
-        uartTxReadLoc += 1;
+        u8 bufferOffset = uart.txReadLoc; // TODO: put back inside bracket operator
+        u8 toWrite = uart.txBuffer[bufferOffset];
+        uart.txReadLoc += 1;
 
-        uartTxReadLoc %= 32; // TODO: #define for buffer size
+        uart.txReadLoc %= 32; // TODO: #define for buffer size
 
-        // TODO: wake up anyone waiting on uartTxReadLoc to put more chars into the buffer
+        // TODO: wake up anyone waiting on uart.txReadLoc to put more chars into the buffer
 
         *(uartMmioBase + 0) = toWrite;
         
@@ -57,17 +69,21 @@ fun uart_transmit()
 
 fun uart_putc(u32 c)
 {
+    Spinlock_Acquire(&uart.lock);
     u8 *uartMmioBase = 0x10000000;
     // TODO: #define for buffer size
-    while(uartTxWriteLoc == uartTxReadLoc + 32)
+    while(uart.txWriteLoc == uart.txReadLoc + 32)
     {
-        // TODO: sleep on the value of uartTxReadLoc, wait for space to be opened up for us in the buffer
+        // TODO: sleep on the value of uart.txReadLoc, wait for space to be opened up for us in the buffer
         *uartMmioBase = '!';
     }
 
-    uartTxBuffer[uartTxWriteLoc] = c;
-    uartTxWriteLoc += 1;
+    uart.txBuffer[uart.txWriteLoc] = c;
+    uart.txWriteLoc += 1;
     
-    uartTxWriteLoc %= 32; // TODO: #define for buffer size
+    uart.txWriteLoc %= 32; // TODO: #define for buffer size
+
+
     uart_transmit();
+    Spinlock_Release(&uart.lock);
 }
