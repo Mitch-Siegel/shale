@@ -70,21 +70,34 @@ fun kexit() asm
     sw a1,0(a0)
 }
 
+u8 started = 0;
+
 fun kmain()
 {
-    console_init();
-    kputs("kstart!\n");
-    kmeminit();
-    kvminit();
+    if(RISCV_readThreadPointer() == 0)
+    {
+        console_init();
+        kputs("kstart!\n");
+        kmeminit();
+        kvminit();
+        started = 1;
+    }
+    else
+    {
+        while(!started)
+        {
+        }
 
-    //trapinit();
+        RISCV_synchronize();
+        kputs("Hart "); kputc('0' + (u8)RISCV_readThreadPointer()); kputs(" starting...\n");
+        kvminithart();
+    }
+    
+    while(1 == 1)
+    {
 
-    /*Spinlock testLock;
+    }
 
-    Spinlock_Init(&testLock, "testlock");
-
-    Spinlock_Acquire(&testLock);
-    Spinlock_Release(&testLock);*/
 
     kputs("bottom of kstart!\n");
     kexit();

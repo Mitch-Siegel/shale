@@ -2,3 +2,5 @@
 fun kvmmap(u64 *kernelPageTable, u8 *virtualAddress, u8 *physicalAddress, u64 size, u16 permissions);
 
 fun kvminit();
+
+fun kvminithart();

@@ -4,6 +4,7 @@
 #include "kalloc.sbh"
 #include "stdlib.sbh"
 #include "proc.sbh"
+#include "riscv.sbh"
 
 extern u8 [1]_text_start;
 extern u8 [1]_text_end;
@@ -151,4 +152,14 @@ u64 *kernel_pagetable;
 fun kvminit()
 {
     kernel_pagetable = kvmmake();
+}
+
+fun kvminithart()
+{
+    RISCV_synchronize();
+
+    RISCV_writeSatp(MAKE_SATP(kernel_pagetable));
+
+    RISCV_synchronize();
+
 }

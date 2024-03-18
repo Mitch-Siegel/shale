@@ -42,8 +42,12 @@ u8 *fun TRAMPOLINE()
 
 u8 *fun KSTACK(u8 hartIndex)
 {
-    
-
     // TODO: define for page size
     return (TRAMPOLINE() - ((hartIndex) + 1) * 2 * 4096);
+}
+
+u64 fun MAKE_SATP(u64 *pageTable)
+{
+    u64 SATP_SV39 = (8 << 60);
+    return (SATP_SV39 | (((u64)pageTable) >> 12));
 }

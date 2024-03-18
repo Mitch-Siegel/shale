@@ -15,3 +15,5 @@ u8 *fun TRAMPOLINE();
 // map kernel stacks beneath the trampoline
 // 1 page of stack, 1 page of guard
 u8 *fun KSTACK(u8 hartIndex);
+
+u64 fun MAKE_SATP(u64 *pageTable);

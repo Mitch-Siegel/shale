@@ -30,7 +30,7 @@ shale.elf: $(addprefix $(OBJDIR)/,$(SHALE_OBJS))
 	$(LD) -T link.lds -o $@ $^
 
 run: shale.elf
-	qemu-system-riscv64 -m 128M -machine virt -nographic -kernel shale.elf -bios none
+	qemu-system-riscv64 -m 128M -machine virt -nographic -kernel shale.elf -bios none -smp 4
 
 run-for-debug: shale.elf
 	qemu-system-riscv64 -m 128M -s -S -machine virt -nographic -kernel shale.elf -bios none
