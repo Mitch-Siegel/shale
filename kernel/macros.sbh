@@ -1,0 +1,9 @@
+// function definitions for things that should ultimately become macro functions
+
+u8 *fun PGROUNDDOWN(u8 *physAddr);
+
+u8 *fun PA2PTE(u8 *physicalAddress);
+
+u8 *fun PTE2PA(u64 *pageTable);
+
+u64 fun PX(u8 level, u8 *virtualAddress);

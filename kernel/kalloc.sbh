@@ -1,6 +1,6 @@
 
-any *fun kalloc();
-
 fun kfree(any *physPageAddr);
+
+any *fun kalloc();
 
 fun kmeminit();

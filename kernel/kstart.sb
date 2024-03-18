@@ -3,6 +3,7 @@
 #include "kalloc.sbh"
 #include "trap.sbh"
 #include "riscv.sbh"
+#include "vm.sbh"
 
 #include "spinlock.sbh"
 // TODO: compile by number of cpus and change stack size
@@ -74,14 +75,16 @@ fun kmain()
     console_init();
     kputs("kstart!\n");
     kmeminit();
-    trapinit();
+    kvminit();
 
-    Spinlock testLock;
+    //trapinit();
+
+    /*Spinlock testLock;
 
     Spinlock_Init(&testLock, "testlock");
 
     Spinlock_Acquire(&testLock);
-    Spinlock_Release(&testLock);
+    Spinlock_Release(&testLock);*/
 
     kputs("bottom of kstart!\n");
     kexit();

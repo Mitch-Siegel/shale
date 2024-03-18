@@ -1,0 +1,29 @@
+#include "macros.sbh"
+
+u8 *fun PGROUNDDOWN(u8 *physAddr)
+{
+    return physAddr & 0xFFFFF000;
+}
+
+u8 *fun PA2PTE(u8 *physicalAddress)
+{
+    return ((((u64)physicalAddress) >> 12) << 10);
+}
+
+u8 *fun PTE2PA(u64 *pageTable)
+{
+    return (((pageTable) >> 10) << 12);
+}
+
+u16 fun PXSHIFT(u8 level)
+{
+    u8 PGSHIFT = 12; // TODO: define for PGSHIFT
+    return (PGSHIFT+(9*(level)));
+}
+
+u64 fun PX(u8 level, u8 *virtualAddress)
+{
+    u16 PXMASK = 0x1FF; // 9 bits - TODO: define for PXMASK
+    return ((((u64) (virtualAddress)) >> PXSHIFT(level)) & PXMASK);
+}
+

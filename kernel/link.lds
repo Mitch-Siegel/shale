@@ -16,6 +16,8 @@ PHDRS
 
 SECTIONS
 {
+  PROVIDE(_kernel_start = .);
+  
   .text : {
     PROVIDE(_text_start = .);
     *(.text.init) *(.text .text.*)

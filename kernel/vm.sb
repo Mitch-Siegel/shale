@@ -1,0 +1,181 @@
+#include "vm.sbh"
+#include "kprintf.sbh"
+#include "macros.sbh"
+#include "kalloc.sbh"
+#include "stdlib.sbh"
+
+extern u8 [1]_text_start;
+extern u8 [1]_text_end;
+extern u8 [1]_rodata_start;
+extern u8 [1]_rodata_end;
+extern u8 [1]_data_start;
+extern u8 [1]_memory_end;
+
+// TODO: typedef/defines for pagetable vs pagetable entry types
+
+// return the address of the page table entry within pageTable corresponding to virtualAddress
+// 
+u64 *fun walk(u64 *pageTable, u8 *virtualAddress, u8 alloc)
+{
+    // TODO: macro for PTE_V
+    u8 PTE_V = (1 << 0); // valid
+
+    u8 *MAXVA = (1 << (9 + 9 + 9 + 12 - 1));
+
+    if(virtualAddress > MAXVA)
+    {
+        kpanic("walk - virtual address outside max of range!");
+    }
+
+    u8 level = 2;
+    while(level > 0)
+    {
+        kputs("AT LEVEL: ");
+        kputc('0' + level);
+        kputs("\tpagetable: ");
+        kputhex((u32)pageTable);
+        kputc('\n');
+        kputs("\tpx = ");
+        kputhex((u32)PX(level,virtualAddress));
+        kputc('\n');
+        u64 *pte = &pageTable[PX(level,virtualAddress)];
+
+        kputs("\tderefpte:");
+        kputhex((u32)pte);
+        kputc('\n');
+        if(*pte & PTE_V)
+        {
+            kputs("\tvalidpte: ");
+            kputhex((u32)(*pte & PTE_V));
+            pageTable = PTE2PA((u64 *)*pte);
+        } 
+        else
+        {
+            kputs("\tnovalidpte\n");
+            if(!alloc)
+            {
+                kputs("\tnoalloc - return 0\n");
+                return 0;
+            }
+
+            pageTable = kalloc();
+            if(pageTable == 0)
+            {
+                return 0;
+            }
+
+            memset(pageTable, 0, 4096); // TODO: macro for page size
+            *pte = PA2PTE((u8 *)pageTable) | PTE_V;
+            kputs("\tnewly-allocated pte is :");
+            kputhex((u32)pte);
+
+        }
+        kputs("\n\n");
+
+        level -= 1;
+    }
+
+    kputs("bottom of walk: pageTable is ");
+    kputhex((u32)pageTable);
+    kputs("\n returning ");
+    u64 *returned = &pageTable[PX(0, virtualAddress)];
+    kputhex((u32)returned);
+    kputc('\n');
+    kputc('\n');
+    kputc('\n');
+    return returned;
+
+}
+
+u32 fun mappages(u64 *kernelPageTable, u8 *virtualAddress, u64 size, u8 *physicalAddress, u16 permissions)
+{
+    kputs("mappages\n");
+    // TODO: macro
+    u8 PTE_V = (1 << 0); // valid
+
+    if(size == 0)
+    {
+        kpanic("mappages: size == 0");
+    }
+
+    u8 *startVirtualAddress = PGROUNDDOWN((u8 *)virtualAddress);
+    u8 *endVirtualAddress = PGROUNDDOWN((u8 *)(virtualAddress + size - 1));
+
+    u8 *mappedVirtualAddress = startVirtualAddress;
+    u8 *mappedPhysicalAddress = physicalAddress;
+
+    u64 *pageTableEntry = 0; // TODO: NULL
+
+    while(mappedVirtualAddress <= endVirtualAddress)
+    {
+        kputs("call walk\n");
+        pageTableEntry = walk(kernelPageTable, startVirtualAddress, 1);
+        kputs("returned from call to walk\n");
+        if(pageTableEntry == 0)
+        {
+            return 1; // TODO: signed return, -1?
+        }
+
+        if((*pageTableEntry) & PTE_V)
+        {
+            kpanic("mappages - found valid page already: remap!\n");
+        }
+        *pageTableEntry = PA2PTE(mappedPhysicalAddress) | permissions | PTE_V;
+
+        // TODO: macro for page size
+        mappedVirtualAddress += 4096;
+        mappedPhysicalAddress += 4096;
+        kputc('m');
+    }
+    kputs("done in mappages :)\n");
+
+    return 0;
+}
+
+fun kvmmap(u64 *kernelPageTable, u8 *virtualAddress, u8 *physicalAddress, u64 size, u16 permissions)
+{
+    if(mappages(kernelPageTable, virtualAddress, size, physicalAddress, permissions) != 0)
+    {
+        kpanic("kvmmap - call to mappages returned nonzero");
+    }
+}
+
+u64 *fun kvmmake()
+{
+    u64 *kernelPageTable = kalloc();
+    memset(kernelPageTable, 0, 4096); // TODO: macro for page size
+
+    // TODO: macros for these
+    u8 *UART0 = 0x10000000;
+    u8 *VIRTIO0 = 0x10001000;
+    u8 *CLINT = 0x2000000;
+    u8 *PLIC = 0x0c000000;
+    u8 PTE_V = (1 << 0); // valid
+    u8 PTE_R = (1 << 1); // readable
+    u8 PTE_W = (1 << 2); // writeable
+    u8 PTE_X = (1 << 3); // executable
+    u8 PTE_U = (1 << 4); // user can access
+
+    // TODO: macro for page size, macros for PTE flags
+    kvmmap(kernelPageTable, UART0, UART0, 4096, PTE_R | PTE_W);     // read/write
+    kvmmap(kernelPageTable, VIRTIO0, VIRTIO0, 4096, PTE_R | PTE_W); // read/write
+    kvmmap(kernelPageTable, PLIC, PLIC, 0x400000, PTE_R | PTE_W);   // read/write
+
+    // .text portion of the kernel executable
+    kvmmap(kernelPageTable, _text_start, _text_start, (u64)(_text_end - _text_start), PTE_R | PTE_X);  // read/execute
+
+    // .rodata portion of kernel executable
+    kvmmap(kernelPageTable, _rodata_start, _rodata_start, (u64)(_rodata_end - _rodata_start), PTE_R); // read-only
+
+    // .data portion of kernel executable up through the rest of memory (data, bss, empty space)
+    kvmmap(kernelPageTable, _data_start, _data_start, (u64)(_memory_end - _rodata_start), PTE_R | PTE_W); // read/write 
+
+
+}
+
+u64 *kernel_pagetable;
+
+fun kvminit()
+{
+    kernel_pagetable = kvmmake();
+}
