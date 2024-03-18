@@ -17,14 +17,16 @@ PHDRS
 SECTIONS
 {
   PROVIDE(_kernel_start = .);
-  
+
   .text : {
+    . = ALIGN(4096);
     PROVIDE(_text_start = .);
     *(.text.init) *(.text .text.*)
     PROVIDE(_text_end = .);
   } >ram AT>ram :text
 
   .rodata : {
+    . = ALIGN(4096);
     PROVIDE(_rodata_start = .);
     *(.rodata .rodata.*)
     PROVIDE(_rodata_end = .);
@@ -38,6 +40,7 @@ SECTIONS
   } >ram AT>ram :data
 
   .bss :{
+    . = ALIGN(4096);
     PROVIDE(_bss_start = .);
     *(.sbss .sbss.*) *(.bss .bss.*)
     PROVIDE(_bss_end = .);

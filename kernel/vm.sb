@@ -30,24 +30,16 @@ u64 *fun walk(u64 *pageTable, u8 *virtualAddress, u8 alloc)
     u8 level = 2;
     while(level > 0)
     {
-        kputs("AT LEVEL: "); kputc('0' + level); kputs("\tpagetable: "); kputhex((u64)pageTable); kputc('\n');
-        kputs("\tpx = "); kputhex(PX(level,virtualAddress)); kputc('\n');
-
         u64 *pte = &pageTable[PX(level,virtualAddress)];
-
-        kputs("\tderefpte:"); kputhex((u64)pte); kputs("->"); kputhex(*pte); kputc('\n');
 
         if(*pte & PTE_V)
         {
-            kputs("\tvalidpte: "); kputhex((*pte));
             pageTable = PTE2PA(*pte);
         } 
         else
         {
-            kputs("\tnovalidpte\n");
             if(!alloc)
             {
-                kputs("\tnoalloc - return 0\n");
                 return 0;
             }
 
@@ -59,25 +51,17 @@ u64 *fun walk(u64 *pageTable, u8 *virtualAddress, u8 alloc)
                 return 0;
             }
 
-            kputs("\tnewly-allocated page table is :"); kputhex((u64)pageTable);
-
             *pte = PA2PTE((u8 *)pageTable) | PTE_V;
-            kputs("\tnew pte is :"); kputhex((u64)pte);
         }
-        kputs("\n\n");
 
         level -= 1;
     }
 
-    u64 *returned = &pageTable[PX(0, virtualAddress)];
-    kputs("bottom of walk: pageTable is "); kputhex((u64)pageTable); kputs("\n returning "); kputhex((u64)returned); kputs("\n\n\n");
-    return returned;
-
+    return &pageTable[PX(0, virtualAddress)];
 }
 
 u32 fun mappages(u64 *kernelPageTable, u8 *virtualAddress, u64 size, u8 *physicalAddress, u16 permissions)
 {
-    kputs("mappages\n");
     // TODO: macro
     u8 PTE_V = (1 << 0); // valid
 
@@ -96,9 +80,8 @@ u32 fun mappages(u64 *kernelPageTable, u8 *virtualAddress, u64 size, u8 *physica
 
     while(mappedVirtualAddress <= endVirtualAddress)
     {
-        kputs("call walk\n");
-        pageTableEntry = walk(kernelPageTable, startVirtualAddress, 1);
-        kputs("returned from call to walk\n");
+        pageTableEntry = walk(kernelPageTable, mappedVirtualAddress, 1);
+
         if(pageTableEntry == 0)
         {
             return 1; // TODO: signed return, -1?
@@ -113,9 +96,7 @@ u32 fun mappages(u64 *kernelPageTable, u8 *virtualAddress, u64 size, u8 *physica
         // TODO: macro for page size
         mappedVirtualAddress += 4096;
         mappedPhysicalAddress += 4096;
-        kputc('m');
     }
-    kputs("done in mappages :)\n");
 
     return 0;
 }
@@ -145,6 +126,7 @@ u64 *fun kvmmake()
     u8 PTE_U = (1 << 4); // user can access
 
     // TODO: macro for page size, macros for PTE flags
+
     kvmmap(kernelPageTable, UART0, UART0, 4096, PTE_R | PTE_W);     // read/write
     kvmmap(kernelPageTable, VIRTIO0, VIRTIO0, 4096, PTE_R | PTE_W); // read/write
     kvmmap(kernelPageTable, PLIC, PLIC, 0x400000, PTE_R | PTE_W);   // read/write
@@ -157,8 +139,6 @@ u64 *fun kvmmake()
 
     // .data portion of kernel executable up through the rest of memory (data, bss, empty space)
     kvmmap(kernelPageTable, _data_start, _data_start, (u64)(_memory_end - _rodata_start), PTE_R | PTE_W); // read/write 
-
-
 }
 
 u64 *kernel_pagetable;
