@@ -72,14 +72,14 @@ fun free_range(any *physStart, any *physEnd)
 {
     // TODO: macro for page size
     u8 *pageToFree = PGROUNDDOWN((u8 *)physStart + 4096);
-    u32 start = (u32)pageToFree;
+    u64 start = (u64)pageToFree;
     while(pageToFree < physEnd)
     {
         // print progress every MiB 
         if(pageToFree % 0x100000 == 0)
         {
             kputc('\r');
-            kputhex(((u32)pageToFree));
+            kputhex(((u64)pageToFree));
         }
         kfree(pageToFree);
         pageToFree += 4096; // TODO: page size macro

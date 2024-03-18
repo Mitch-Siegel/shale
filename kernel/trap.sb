@@ -28,7 +28,7 @@ fun kerneltrap()
     }
 
     kputs("\tscause:");
-    kputhex((u32)scause);
+    kputhex(scause);
     kpanic("kerneltrap!");
 
 }

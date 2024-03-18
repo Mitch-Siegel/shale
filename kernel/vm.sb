@@ -30,24 +30,17 @@ u64 *fun walk(u64 *pageTable, u8 *virtualAddress, u8 alloc)
     u8 level = 2;
     while(level > 0)
     {
-        kputs("AT LEVEL: ");
-        kputc('0' + level);
-        kputs("\tpagetable: ");
-        kputhex((u32)pageTable);
-        kputc('\n');
-        kputs("\tpx = ");
-        kputhex((u32)PX(level,virtualAddress));
-        kputc('\n');
+        kputs("AT LEVEL: "); kputc('0' + level); kputs("\tpagetable: "); kputhex((u64)pageTable); kputc('\n');
+        kputs("\tpx = "); kputhex(PX(level,virtualAddress)); kputc('\n');
+
         u64 *pte = &pageTable[PX(level,virtualAddress)];
 
-        kputs("\tderefpte:");
-        kputhex((u32)pte);
-        kputc('\n');
+        kputs("\tderefpte:"); kputhex((u64)pte); kputs("->"); kputhex(*pte); kputc('\n');
+
         if(*pte & PTE_V)
         {
-            kputs("\tvalidpte: ");
-            kputhex((u32)(*pte & PTE_V));
-            pageTable = PTE2PA((u64 *)*pte);
+            kputs("\tvalidpte: "); kputhex((*pte));
+            pageTable = PTE2PA(*pte);
         } 
         else
         {
@@ -59,30 +52,25 @@ u64 *fun walk(u64 *pageTable, u8 *virtualAddress, u8 alloc)
             }
 
             pageTable = kalloc();
+            memset(pageTable, 0, 4096); // TODO: macro for page size
+
             if(pageTable == 0)
             {
                 return 0;
             }
 
-            memset(pageTable, 0, 4096); // TODO: macro for page size
-            *pte = PA2PTE((u8 *)pageTable) | PTE_V;
-            kputs("\tnewly-allocated pte is :");
-            kputhex((u32)pte);
+            kputs("\tnewly-allocated page table is :"); kputhex((u64)pageTable);
 
+            *pte = PA2PTE((u8 *)pageTable) | PTE_V;
+            kputs("\tnew pte is :"); kputhex((u64)pte);
         }
         kputs("\n\n");
 
         level -= 1;
     }
 
-    kputs("bottom of walk: pageTable is ");
-    kputhex((u32)pageTable);
-    kputs("\n returning ");
     u64 *returned = &pageTable[PX(0, virtualAddress)];
-    kputhex((u32)returned);
-    kputc('\n');
-    kputc('\n');
-    kputc('\n');
+    kputs("bottom of walk: pageTable is "); kputhex((u64)pageTable); kputs("\n returning "); kputhex((u64)returned); kputs("\n\n\n");
     return returned;
 
 }
@@ -146,10 +134,10 @@ u64 *fun kvmmake()
     memset(kernelPageTable, 0, 4096); // TODO: macro for page size
 
     // TODO: macros for these
-    u8 *UART0 = 0x10000000;
+    u8 *UART0 =   0x10000000;
     u8 *VIRTIO0 = 0x10001000;
-    u8 *CLINT = 0x2000000;
-    u8 *PLIC = 0x0c000000;
+    u8 *CLINT =   0x2000000;
+    u8 *PLIC =    0x0c000000;
     u8 PTE_V = (1 << 0); // valid
     u8 PTE_R = (1 << 1); // readable
     u8 PTE_W = (1 << 2); // writeable

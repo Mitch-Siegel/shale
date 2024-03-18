@@ -10,14 +10,14 @@ fun kputs(u8 *str)
     }
 }
 
-fun kputhex(u32 hex)
+fun kputhex(u64 hex)
 {
 	uart_putc('0');
 	uart_putc('x');
 	u8 i = 0;
-	while(i < 4)
+	while(i < 8)
 	{
-		u8 thisByte = (hex >> ((3 - i) * 8)) & 255;
+		u8 thisByte = (hex >> ((7 - i) * 8)) & 255;
 		u8 j = 0;
 		while(j < 2)
 		{

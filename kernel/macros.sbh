@@ -4,6 +4,6 @@ u8 *fun PGROUNDDOWN(u8 *physAddr);
 
 u8 *fun PA2PTE(u8 *physicalAddress);
 
-u8 *fun PTE2PA(u64 *pageTable);
+u8 *fun PTE2PA(u64 pageTableEntry);
 
 u64 fun PX(u8 level, u8 *virtualAddress);

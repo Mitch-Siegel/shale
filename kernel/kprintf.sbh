@@ -1,7 +1,7 @@
 
 fun kputs(u8 *str);
 
-fun kputhex(u32 hex);
+fun kputhex(u64 hex);
 
 fun kputc(u8 c);
 

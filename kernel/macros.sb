@@ -10,9 +10,9 @@ u8 *fun PA2PTE(u8 *physicalAddress)
     return ((((u64)physicalAddress) >> 12) << 10);
 }
 
-u8 *fun PTE2PA(u64 *pageTable)
+u8 *fun PTE2PA(u64 pageTableEntry)
 {
-    return (((pageTable) >> 10) << 12);
+    return (((pageTableEntry) >> 10) << 12);
 }
 
 u16 fun PXSHIFT(u8 level)
