@@ -7,3 +7,11 @@ u8 *fun PA2PTE(u8 *physicalAddress);
 u8 *fun PTE2PA(u64 pageTableEntry);
 
 u64 fun PX(u8 level, u8 *virtualAddress);
+
+u8 *fun MAXVA();
+
+u8 *fun TRAMPOLINE();
+
+// map kernel stacks beneath the trampoline
+// 1 page of stack, 1 page of guard
+u8 *fun KSTACK(u8 hartIndex);

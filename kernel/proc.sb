@@ -1,10 +1,13 @@
 #include "proc.sbh"
-
+#include "kalloc.sbh"
 #include "riscv.sbh"
+#include "kprintf.sbh"
+#include "macros.sbh"
+#include "vm.sbh"
 
 // TODO: define for ncpus
 Cpu[4] cpus;
-
+Process[4] processes;
 
 u8 fun cpuid()
 {
@@ -19,4 +22,27 @@ Cpu *fun myCpu()
     u32 id = cpuid();
     Cpu *c = &cpus[id];
     return c;
+}
+
+fun proc_mapstacks(u64 *kernelPageTable)
+{
+    u8 i = 0;
+
+    while(i < 4)
+    {
+        Process *p = (processes + i);
+
+        u8 *physicalProcStackAddr = kalloc();
+        if(physicalProcStackAddr == 0)
+        {
+            kpanic("kalloc returned 0");
+        }
+
+        u8 *virtualAddress = KSTACK(i);
+
+        // TODO: defines for page size, PTE_R, PTE_W
+        kvmmap(kernelPageTable, virtualAddress, physicalProcStackAddr, 4096, 3);
+
+        i += 1;
+    }
 }

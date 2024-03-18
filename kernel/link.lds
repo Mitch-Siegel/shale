@@ -46,6 +46,7 @@ SECTIONS
     PROVIDE(_bss_end = .);
   } >ram AT>ram :bss
 
+  . = ALIGN(4096);
   PROVIDE(_kernel_end = .);
   PROVIDE(_memory_end = ORIGIN(ram) + LENGTH(ram));
 }

@@ -1,3 +1,31 @@
+#include "spinlock.sbh"
+
+class Process
+{
+    Spinlock lock;
+
+    u8 state;
+    any *chan;
+    u8 killed;
+    u8 exitState;
+    u64 pid;
+
+    Process *parent;
+
+    u8 *kStack;
+    u64 sz;
+    u64 *userPageTable;
+
+    /*
+        TODO:
+            - trap frame
+            - context
+            - open files
+            - CWD
+    */
+
+    u8[16] name;
+};
 
 // Per-CPU state.
 class Cpu {
@@ -7,3 +35,5 @@ class Cpu {
 };
 
 Cpu *fun myCpu();
+
+fun proc_mapstacks(u64 *kernelPageTable);

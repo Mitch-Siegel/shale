@@ -3,13 +3,14 @@
 #include "macros.sbh"
 #include "kalloc.sbh"
 #include "stdlib.sbh"
+#include "proc.sbh"
 
 extern u8 [1]_text_start;
 extern u8 [1]_text_end;
 extern u8 [1]_rodata_start;
 extern u8 [1]_rodata_end;
 extern u8 [1]_data_start;
-extern u8 [1]_memory_end;
+extern u8 [1]_data_end;
 
 // TODO: typedef/defines for pagetable vs pagetable entry types
 
@@ -20,9 +21,8 @@ u64 *fun walk(u64 *pageTable, u8 *virtualAddress, u8 alloc)
     // TODO: macro for PTE_V
     u8 PTE_V = (1 << 0); // valid
 
-    u8 *MAXVA = (1 << (9 + 9 + 9 + 12 - 1));
 
-    if(virtualAddress > MAXVA)
+    if(virtualAddress > MAXVA())
     {
         kpanic("walk - virtual address outside max of range!");
     }
@@ -137,8 +137,13 @@ u64 *fun kvmmake()
     // .rodata portion of kernel executable
     kvmmap(kernelPageTable, _rodata_start, _rodata_start, (u64)(_rodata_end - _rodata_start), PTE_R); // read-only
 
+    // TODO: when .data section size becomes >0, uncomment
     // .data portion of kernel executable up through the rest of memory (data, bss, empty space)
-    kvmmap(kernelPageTable, _data_start, _data_start, (u64)(_memory_end - _rodata_start), PTE_R | PTE_W); // read/write 
+    //kvmmap(kernelPageTable, _data_start, _data_start, (u64)(_data_end - _data_start), PTE_R | PTE_W); // read/write
+
+    proc_mapstacks(kernelPageTable);
+
+    return kernelPageTable;
 }
 
 u64 *kernel_pagetable;

@@ -27,3 +27,23 @@ u64 fun PX(u8 level, u8 *virtualAddress)
     return ((((u64) (virtualAddress)) >> PXSHIFT(level)) & PXMASK);
 }
 
+u8 *fun MAXVA()
+{
+    return (1 << (9 + 9 + 9 + 12 - 1));
+}
+
+u8 *fun TRAMPOLINE()
+{
+    // map the trampoline page to the highest address,
+    // in both user and kernel space.
+    return (MAXVA() - 4096); // TODO: define for page size
+}
+
+
+u8 *fun KSTACK(u8 hartIndex)
+{
+    
+
+    // TODO: define for page size
+    return (TRAMPOLINE() - ((hartIndex) + 1) * 2 * 4096);
+}
