@@ -35,10 +35,6 @@ fun Spinlock_Acquire(Spinlock *l)
         kpanic("attempt to acquire held spinlock");
     }
 
-    kputs("Acquire spinlock ");
-    kputs(l->name);
-    kputc('\n');
-
     while(RISCV_testAndSet(&l->locked, 1) != 0)
     {
     }
@@ -54,10 +50,6 @@ fun Spinlock_Release(Spinlock *l)
     {
         kpanic("attempt to release non-held spinlock");
     }
-
-    kputs("Release spinlock ");
-    kputs(l->name);
-    kputc('\n');
 
     l->cpu = 0;
     RISCV_synchronize();

@@ -3,3 +3,5 @@
 fun uart_init();
 
 fun uart_putc(u32 c);
+
+fun uart_putc_sync(u32 c);

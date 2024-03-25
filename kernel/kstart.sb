@@ -77,6 +77,7 @@ fun kmain()
     if(RISCV_readThreadPointer() == 0)
     {
         console_init();
+        printfInit();
         kputs("kstart!\n");
         kmeminit();
         kvminit();
@@ -95,7 +96,6 @@ fun kmain()
     
     while(1 == 1)
     {
-
     }
 
 

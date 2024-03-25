@@ -1,4 +1,7 @@
 
+#ifndef _SPINLOCK_SBH_
+#define _SPINLOCK_SBH_
+
 class Spinlock
 {
     u32 locked;
@@ -12,4 +15,4 @@ fun Spinlock_Acquire(Spinlock *l);
 
 fun Spinlock_Release(Spinlock *l);
 
-
+#endif

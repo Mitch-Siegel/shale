@@ -1,5 +1,6 @@
 #include "uart.sbh"
 #include "spinlock.sbh"
+#include "interrupts.sbh"
 
 class Uart
 {
@@ -55,7 +56,7 @@ fun uart_transmit()
         }
 
         u8 bufferOffset = uart.txReadLoc; // TODO: put back inside bracket operator
-        u8 toWrite = uart.txBuffer[bufferOffset];
+        u8 toWrite = *(uart.txBuffer + bufferOffset); // TODO: use bracket operators once implemented as child of t_dot
         uart.txReadLoc += 1;
 
         uart.txReadLoc %= 32; // TODO: #define for buffer size
@@ -78,7 +79,8 @@ fun uart_putc(u32 c)
         *uartMmioBase = '!';
     }
 
-    uart.txBuffer[uart.txWriteLoc] = c;
+    u8 bufferOffset = uart.txWriteLoc; // TODO: put back inside bracket operator
+    *(uart.txBuffer + bufferOffset) = c; // TODO: use bracket operators once implemented as child of t_dot
     uart.txWriteLoc += 1;
     
     uart.txWriteLoc %= 32; // TODO: #define for buffer size
@@ -86,4 +88,21 @@ fun uart_putc(u32 c)
 
     uart_transmit();
     Spinlock_Release(&uart.lock);
+}
+
+// spin waiting for the uart output register to be empty, then barf up the character into the register
+fun uart_putc_sync(u32 c)
+{
+    push_off();
+
+    u8 *LSR = 0x10000005;
+    u8 *THR = 0x10000000;
+
+    while(((*LSR) & (1 << 5)) == 0)
+    {
+    }
+
+    (*THR) = c;
+
+    pop_off();
 }

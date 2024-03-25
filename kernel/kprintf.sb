@@ -1,19 +1,43 @@
 #include "kprintf.sbh"
 #include "uart.sbh"
 
+class PrintMutex
+{
+	Spinlock lock;
+	u8 locking;
+};
+
+PrintMutex printMutex;
+
+
 fun kputs(u8 *str)
 {
+	if(printMutex.locking)
+	{
+		Spinlock_Acquire(&printMutex.lock);
+	}
+
     while(*str != 0)
     {
-        uart_putc(*str);
+        uart_putc_sync(*str);
         str = str + 1;
     }
+
+	if(printMutex.locking)
+	{
+		Spinlock_Release(&printMutex.lock);
+	}
 }
 
 fun kputhex(u64 hex)
 {
-	uart_putc('0');
-	uart_putc('x');
+	if(printMutex.locking)
+	{
+		Spinlock_Acquire(&printMutex.lock);
+	}
+
+	uart_putc_sync('0');
+	uart_putc_sync('x');
 	u8 i = 0;
 	while(i < 8)
 	{
@@ -24,26 +48,42 @@ fun kputhex(u64 hex)
 			u8 thisNibble = (thisByte >> ((1 -j) * 4)) & 15;
 			if(thisNibble < 10)
 			{
-				uart_putc('0' + thisNibble);
+				uart_putc_sync('0' + thisNibble);
 			}
 			else
 			{
-				uart_putc('A' + (thisNibble- 10));
+				uart_putc_sync('A' + (thisNibble- 10));
 			}
 			j = j + 1;
 		}
 
 		i = i + 1;
 	}
+
+	if(printMutex.locking)
+	{
+		Spinlock_Release(&printMutex.lock);
+	}
 }
 
 fun kputc(u8 c)
 {
-    uart_putc(c);
+	if(printMutex.locking)
+	{
+		Spinlock_Acquire(&printMutex.lock);
+	}
+
+    uart_putc_sync(c);
+
+	if(printMutex.locking)
+	{
+		Spinlock_Release(&printMutex.lock);
+	}
 }
 
 fun kpanic(u8 *s)
 {
+	printMutex.locking = 0;
     kputs("panic: ");
     kputs(s);
     kputs("\n");
@@ -51,3 +91,10 @@ fun kpanic(u8 *s)
     while(panicked != 0)
     {}
 }
+
+fun printfInit()
+{
+	Spinlock_Init(&printMutex.lock, "printf");
+	printMutex.locking = 1;
+}
+
