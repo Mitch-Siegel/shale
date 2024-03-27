@@ -1,4 +1,4 @@
-#include "spinlock.sbh"
+#include "concurrency/spinlock.sbh"
 
 fun uart_init();
 

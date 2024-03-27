@@ -1,9 +1,9 @@
-#include "spinlock.sbh"
+#include "arch/riscv.sbh"
+#include "arch/interrupts.sbh"
+#include "process/proc.sbh"
+#include "textio/kprintf.sbh"
 
-#include "riscv.sbh"
-#include "interrupts.sbh"
-#include "proc.sbh"
-#include "kprintf.sbh"
+#include "spinlock.sbh"
 
 fun Spinlock_Init(Spinlock *l, u8 *name)
 {

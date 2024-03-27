@@ -1,7 +1,7 @@
-#include "kalloc.sbh"
-#include "kprintf.sbh"
-#include "stdlib.sbh"
-#include "macros.sbh"
+#include "memory/kalloc.sbh"
+#include "textio/kprintf.sbh"
+#include "generic/stdlib.sbh"
+#include "generic/macros.sbh"
 
 extern u8 [1]_kernel_end; // first address after the kernel, defined in the linker script link.lds
 extern u8 [1]_memory_end; // top of physical memory

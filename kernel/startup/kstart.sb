@@ -1,31 +1,31 @@
-#include "kprintf.sbh"
-#include "console.sbh"
-#include "kalloc.sbh"
-#include "trap.sbh"
-#include "riscv.sbh"
-#include "vm.sbh"
+#include "textio/kprintf.sbh"
+#include "textio/console.sbh"
+#include "memory/kalloc.sbh"
+#include "process/trap.sbh"
+#include "arch/riscv.sbh"
+#include "memory/vm.sbh"
+#include "concurrency/spinlock.sbh"
 
-#include "spinlock.sbh"
 // TODO: compile by number of cpus and change stack size
 u8[4096] stack;
 
 fun SetSupervisorMode() asm
 {
-    # set previous privelege mode to supervisor
-    # so that when we mret at the end of start, we are in supervisor mode
+    // set previous privelege mode to supervisor
+    // so that when we mret at the end of start, we are in supervisor mode
     csrr a0, mstatus
-    # ~MSTATUS_MPP_MASK
+    // ~MSTATUS_MPP_MASK
     lui a1, 0xffffe
     add a1, a1, 2047
     and	a0, a0, a1
-    # MSTATUS_MPP_S
+    // MSTATUS_MPP_S
     lui a1, 0x1
     add a1, a1, -2048
     or a0, a0, a1
     csrw mstatus, a0
 
-    # give supervisor mode access to all of physical memory
-    # TODO: implement these as RISCV_ asm functions with u64
+    // give supervisor mode access to all of physical memory
+    // TODO: implement these as RISCV_ asm functions with u64
     li a0, 0x3fffffffffffff
     csrw pmpaddr0, a0
     li a0, 0xf

@@ -1,0 +1,9 @@
+# base definitions used by all parts of the build
+.SUFFIXES:
+CC=
+AS=riscv64-unknown-elf-as
+LD=riscv64-unknown-elf-ld
+
+BUILD_DIR = build
+
+DIR_NAME = $(notdir $(CURDIR))

@@ -1,0 +1,47 @@
+include ../MakefileBase
+
+# makefile intended to be included by individual modules to build them generically
+
+SOURCE_FILES = $(basename $(wildcard *.sb))
+COMPILED_ASMS = $(addprefix $(BUILD_DIR)/,$(SOURCE_FILES:%=%.S))
+COMPILED_OBJS = $(addprefix $(BUILD_DIR)/,$(SOURCE_FILES:%=%.o))
+RAW_ASMS = $(wildcard *.S)
+RAW_ASM_OBJS = $(addprefix $(BUILD_DIR)/,$(RAW_ASMS:%.S=%.o))
+
+.SECONDARY: $(COMPILED_ASMS).elf
+
+
+$(BUILD_DIR)/%.o : %.S
+	@mkdir -p $(@D)
+	$(AS) $< -r -o $@ 
+
+$(BUILD_DIR)/%.o : $(BUILD_DIR)/%.S
+	@mkdir -p $(@D)
+	$(AS) $< -r -o $@ 
+
+$(BUILD_DIR)/%.S : %.sb
+	@mkdir -p $(@D)
+	@sbcc -i $< -o $@ -I include -I ..
+
+$(BUILD_DIR)/$(DIR_NAME).o: $(COMPILED_OBJS) $(RAW_ASM_OBJS)
+	@mkdir -p $(@D)
+	$(info "BIG ONE COMPILED: $(COMPILED_OBJS)")
+	$(info "BIG ONE FROM ASMS: $(RAW_ASM_OBJS)")
+	$(info "THE BIG ONE: [$@] [$^]")
+	$(LD) $^ -r -o $@ 
+
+clean:
+	rm -f $(BUILD_DIR)/*
+
+ifeq ($(DIR_NAME),"kernel")
+	$(MAKE) $(notdir $(CURDIR)).elf
+else
+	$(MAKE) $(notdir $(CURDIR)).o
+endif
+
+info:
+	$(info substratum source files: "$(SOURCE_FILES)")
+	$(info substratum compiled asm files: "$(COMPILED_ASMS)")
+	$(info compiled object files: "$(COMPILED_OBJS)")
+	$(info raw asm object files: "$(RAW_ASM_OBJS)")
+	

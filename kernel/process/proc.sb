@@ -1,9 +1,9 @@
-#include "proc.sbh"
-#include "kalloc.sbh"
-#include "riscv.sbh"
-#include "kprintf.sbh"
-#include "macros.sbh"
-#include "vm.sbh"
+#include "process/proc.sbh"
+#include "memory/kalloc.sbh"
+#include "arch/riscv.sbh"
+#include "textio/kprintf.sbh"
+#include "generic/macros.sbh"
+#include "memory/vm.sbh"
 
 // TODO: define for ncpus
 Cpu[4] cpus;

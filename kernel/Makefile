@@ -1,32 +1,21 @@
-.SUFFIXES:
-CC=
-AS=riscv64-unknown-elf-as
-LD=riscv64-unknown-elf-ld
+include MakefileBase
 
-OBJDIR = build
+# top-level makefile to build all modules and produce kernel image
 
-programs: shale.elf
+BUILD_DIR = build
+MODULE_DIRS = $(wildcard ./*/)
+MODULES = $(filter-out $(BUILD_DIR), $(patsubst ./%/,%,$(MODULE_DIRS)))
+MODULE_OBJECT_LOCATION = $(addsuffix /$(BUILD_DIR)/$(notdir $(1)).o, $(1))
+MODULES_OBJECTS = $(foreach module, $(MODULES), $(call MODULE_OBJECT_LOCATION,$(module)))
 
-SOURCE_FILES = $(basename $(wildcard *.sb))
-COMPILED_ASMS = $(SOURCE_FILES:%=%.S)
-SHALE_OBJS = start.o $(SOURCE_FILES:%=%.o)
+all: shale.elf
 
-$(OBJDIR)/%.o : %.S
-	@mkdir -p $(@D)
-	$(AS) $< -r -o $@ 
+$(MODULES_OBJECTS):
+	$(info "MAKE $@")
+	$(MAKE) -C $(basename $(notdir $@))
 
-$(OBJDIR)/%.o : $(OBJDIR)/%.S
-	@mkdir -p $(@D)
-	$(AS) $< -r -o $@ 
-
-$(OBJDIR)/%.S : %.sb
-	@mkdir -p $(@D)
-	@sbcc -i $< -o $@
-
-compileonly: $(addprefix $(OBJDIR)/,$(COMPILED_ASMS))
-
-
-shale.elf: $(addprefix $(OBJDIR)/,$(SHALE_OBJS))
+shale.elf: $(MODULES_OBJECTS)
+	$(info "BUILDING KERNEL...")
 	$(LD) -T link.lds -o $@ $^
 
 run: shale.elf
@@ -39,12 +28,11 @@ debug:
 	riscv64-unknown-elf-gdb ./shale.elf -x debug.gdb
 
 clean:
-	rm $(OBJDIR)/*
-	rm -f shale.elf
+	@for module in $(MODULES); do\
+		$(MAKE) -C $$module clean;\
+	done
 
 info:
-	$(info asm files: "$(ASM_FILES)")
-	$(info substratum source files: "$(SOURCE_FILES)")
-	$(info substratum asm files: "$(COMPILED_ASMS)")
-	$(info object files: "$(SHALE_OBJS)")
-	
+	$(info module directories: "$(MODULE_DIRS)")
+	$(info modules: "$(MODULES)")
+	$(info module objects: "$(MODULES_OBJECTS)")

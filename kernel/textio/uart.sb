@@ -1,6 +1,5 @@
 #include "uart.sbh"
-#include "spinlock.sbh"
-#include "interrupts.sbh"
+#include "arch/interrupts.sbh"
 
 class Uart
 {

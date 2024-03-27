@@ -9,23 +9,23 @@ u32 fun RISCV_readThreadPointer() asm
 // TODO: ABI?
 u32 fun RISCV_testAndSet(u32 *address, u32 newValue) asm
 {
-    # callee-save register a1
+    // callee-save register a1
     addi sp, sp, -8
     sd a1, 0(sp)
 
-    lwu a1, 0(fp) # place address
-    lwu a0, 8(fp) # place newValue
+    lwu a1, 0(fp) // place address
+    lwu a0, 8(fp) // place newValue
     amoswap.w.aq a0, a0, (a1)
     sext.w a0, a0
 
-    # restore callee-saved register a1
+    // restore callee-saved register a1
     lwu a1, 0(sp)
     addi sp, sp, 4
 }
 
 fun RISCV_lockRelease(u32 *address) asm
 {
-    lwu a0, 0(fp) # place address
+    lwu a0, 0(fp) // place address
     amoswap.w zero, zero, (a0)
 }
 

@@ -1,8 +1,8 @@
-#include "interrupts.sbh"
+#include "arch/riscv.sbh"
+#include "process/proc.sbh"
+#include "textio/kprintf.sbh"
 
-#include "riscv.sbh"
-#include "proc.sbh"
-#include "kprintf.sbh"
+#include "interrupts.sbh"
 
 fun push_off()
 {
