@@ -9,6 +9,7 @@ MEMORY
 
 PHDRS
 {
+  start PT_LOAD;
   text PT_LOAD;
   data PT_LOAD;
   bss PT_LOAD;
@@ -17,10 +18,15 @@ PHDRS
 SECTIONS
 {
   PROVIDE(_kernel_start = .);
+  
+  .start : 
+  {
+    PROVIDE(_text_start = .);
+    *(.start .start.*)
+    . += SIZEOF(.start);
+  } >ram AT>ram :start
 
   .text : {
-    . = ALIGN(4096);
-    PROVIDE(_text_start = .);
     *(.text.init) *(.text .text.*)
     PROVIDE(_text_end = .);
   } >ram AT>ram :text

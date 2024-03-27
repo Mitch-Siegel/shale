@@ -33,11 +33,12 @@ $(BUILD_DIR)/$(DIR_NAME).o: $(COMPILED_OBJS) $(RAW_ASM_OBJS)
 clean:
 	rm -f $(BUILD_DIR)/*
 
-ifeq ($(DIR_NAME),"kernel")
-	$(MAKE) $(notdir $(CURDIR)).elf
-else
-	$(MAKE) $(notdir $(CURDIR)).o
-endif
+$(DIR_NAME):
+	ifeq ($(DIR_NAME),"kernel")
+		$(MAKE) $(notdir $(CURDIR)).elf
+	else
+		$(MAKE) $(notdir $(CURDIR)).o
+	endif
 
 info:
 	$(info substratum source files: "$(SOURCE_FILES)")

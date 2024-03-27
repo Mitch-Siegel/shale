@@ -22,7 +22,7 @@ run: shale.elf
 	qemu-system-riscv64 -m 128M -machine virt -nographic -kernel shale.elf -bios none -smp 4
 
 run-for-debug: shale.elf
-	qemu-system-riscv64 -m 128M -s -S -machine virt -nographic -kernel shale.elf -bios none
+	qemu-system-riscv64 -m 128M -s -S -machine virt -nographic -kernel shale.elf -bios none -smp 4
 
 debug:
 	riscv64-unknown-elf-gdb ./shale.elf -x debug.gdb
